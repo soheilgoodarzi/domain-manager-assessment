@@ -14,55 +14,66 @@ const statusMap = {
   3: { text: "Rejected", color: "bg-red-500/20 text-red-400" },
 }
 
-const columns: ColumnDef<Domain>[] = [
-  { accessorKey: "domain", header: "Domain" },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const statusInfo = statusMap[row.original.status]
-      return (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.color}`}
-        >
-          {statusInfo.text}
-        </span>
-      )
-    },
-  },
-  {
-    accessorKey: "isActive",
-    header: "Active",
-    cell: ({ row }) => (row.original.isActive ? "Active" : "Inactive"),
-  },
-  {
-    accessorKey: "createdDate",
-    header: "Created",
-    cell: ({ row }) => new Date(row.original.createdDate).toLocaleString(),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex space-x-2">
-        <button className="px-3 py-1 bg-slate-600 hover:bg-slate-700 rounded text-sm">
-          Edit
-        </button>
-        <button className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">
-          Delete
-        </button>
-      </div>
-    ),
-  },
-]
-
 interface DomainsTableProps {
-  data: Domain[]
+  domains: Domain[]
+  onEdit: (domain: Domain) => void
+  onDelete: (id: string) => void
 }
 
-const DomainsTable = ({ data }: DomainsTableProps) => {
+const DomainsTable = ({ domains, onEdit, onDelete }: DomainsTableProps) => {
+  const columns: ColumnDef<Domain>[] = [
+    {
+      accessorKey: "domain",
+      header: "Domain",
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const statusInfo = statusMap[row.original.status]
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.color}`}
+          >
+            {statusInfo.text}
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: "isActive",
+      header: "Active",
+      cell: ({ row }) => (row.original.isActive ? "Active" : "Inactive"),
+    },
+    {
+      accessorKey: "createdDate",
+      header: "Created",
+      cell: ({ row }) => new Date(row.original.createdDate).toLocaleString(),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onEdit(row.original)}
+            className="px-3 py-1 bg-slate-600 hover:bg-slate-700 rounded text-sm"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(row.original.id)}
+            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   const table = useReactTable({
-    data,
+    data: domains,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -103,7 +114,10 @@ const DomainsTable = ({ data }: DomainsTableProps) => {
             ))
           ) : (
             <tr>
-              <td colSpan={columns.length} className="text-center p-8">
+              <td
+                colSpan={columns.length}
+                className="text-center p-8 text-slate-400"
+              >
                 No domains found.
               </td>
             </tr>

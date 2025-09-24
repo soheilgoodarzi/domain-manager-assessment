@@ -1,39 +1,69 @@
-// src/app/page.tsx
-
 "use client"
-
-import { useMemo, useState } from "react"
+import { ChangeEvent, useMemo, useState } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getDomains, deleteDomain } from "@/services/api"
+import { Domain } from "@/types/domain"
 import DomainsTable from "@/components/DomainsTable"
 import DomainModal from "@/components/DomainModal"
-import { useQuery } from "@tanstack/react-query"
-import { getDomains } from "@/services/api"
 import DomainFilters from "@/components/DomainFilters"
-import { Domain } from "@/types/domain"
+import toast from "react-hot-toast"
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal"
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [domainToEdit, setDomainToEdit] = useState<Domain | null>(null)
 
-  // ۱. وضعیت برای نگهداری مقادیر فیلترها
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [domainToDeleteId, setDomainToDeleteId] = useState<string | null>(null)
+
   const [filters, setFilters] = useState({
     domain: "",
-    isActive: "", // 'true', 'false', or ''
-    status: "", // '1', '2', '3', or ''
+    isActive: "all",
+    status: "all",
   })
 
-  // ۲. Fetch کردن کل داده‌ها در کامپوننت والد
+  const queryClient = useQueryClient()
+
   const {
     data: domains,
     isLoading,
     isError,
   } = useQuery({
-    // ✅ تغییر ۱: حذف مقدار پیش‌فرض [] برای شفافیت
     queryKey: ["domains"],
     queryFn: getDomains,
   })
 
-  // ۳. تابع برای مدیریت تغییرات فیلترها
+  const deleteMutation = useMutation({
+    mutationFn: deleteDomain,
+    onSuccess: () => {
+      toast.success("Domain deleted successfully!")
+      queryClient.invalidateQueries({ queryKey: ["domains"] })
+      // ✅ بعد از موفقیت، مودال حذف را ببند
+      setIsDeleteModalOpen(false)
+      setDomainToDeleteId(null)
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete domain: ${error.message}`)
+    },
+  })
+
+  const filteredDomains = useMemo(() => {
+    const domainsArray = Array.isArray(domains) ? domains : []
+    return domainsArray.filter((domain) => {
+      const domainMatch = domain.domain
+        .toLowerCase()
+        .includes(filters.domain.toLowerCase())
+      const activeMatch =
+        filters.isActive === "all" ||
+        String(domain.isActive) === filters.isActive
+      const statusMatch =
+        filters.status === "all" || String(domain.status) === filters.status
+      return domainMatch && activeMatch && statusMatch
+    })
+  }, [domains, filters])
+
   const handleFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
     setFilters((prevFilters) => ({
@@ -42,31 +72,31 @@ export default function HomePage() {
     }))
   }
 
-  // ۴. منطق فیلتر کردن داده‌ها
-  const filteredDomains = useMemo(() => {
-    // ✅ تغییر ۲ (اصلی): قبل از فیلتر کردن، مطمئن می‌شویم که domains یک آرایه است
-    const domainsArray = Array.isArray(domains) ? domains : []
+  const handleEdit = (domain: Domain) => {
+    setDomainToEdit(domain)
+    setIsModalOpen(true)
+  }
 
-    return domainsArray.filter((domain: Domain) => {
-      // فیلتر بر اساس نام دامنه
-      const domainMatch = domain.domain
-        .toLowerCase()
-        .includes(filters.domain.toLowerCase())
+  const handleAdd = () => {
+    setDomainToEdit(null)
+    setIsModalOpen(true)
+  }
 
-      // فیلتر بر اساس وضعیت Active
-      const isActiveMatch =
-        filters.isActive === "" || String(domain.isActive) === filters.isActive
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setDomainToEdit(null)
+  }
 
-      // فیلتر بر اساس Status
-      const statusMatch =
-        filters.status === "" || String(domain.status) === filters.status
+  const handleDelete = (id: string) => {
+    setDomainToDeleteId(id)
+    setIsDeleteModalOpen(true)
+  }
 
-      return domainMatch && isActiveMatch && statusMatch
-    })
-  }, [domains, filters]) // این تابع فقط زمانی دوباره اجرا می‌شود که domains یا filters تغییر کنند
-
-  const openModal = () => setIsModalOpen(true)
-  const closeModal = () => setIsModalOpen(false)
+  const handleConfirmDelete = () => {
+    if (domainToDeleteId) {
+      deleteMutation.mutate(domainToDeleteId)
+    }
+  }
 
   return (
     <main className="container mx-auto p-4 md:p-8">
@@ -76,26 +106,40 @@ export default function HomePage() {
           <p className="text-slate-400">CRUD + Search & Filter</p>
         </div>
         <button
-          onClick={openModal}
+          onClick={handleAdd}
           className="bg-slate-50 text-slate-900 font-semibold px-4 py-2 rounded-md hover:bg-slate-200"
         >
           + Add Domain
         </button>
       </div>
 
-      {/* کامپوننت فیلترها */}
       <DomainFilters filters={filters} onFilterChange={handleFilterChange} />
 
-      {/* مدیریت وضعیت لودینگ و خطا */}
       {isLoading && <div className="text-center p-8">Loading domains...</div>}
       {isError && (
         <div className="text-center p-8 text-red-500">Error loading data.</div>
       )}
 
-      {/* پاس دادن داده‌های فیلتر شده به جدول */}
-      {!isLoading && !isError && <DomainsTable data={filteredDomains} />}
+      {!isLoading && !isError && (
+        <DomainsTable
+          domains={filteredDomains}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
-      <DomainModal isOpen={isModalOpen} onClose={closeModal} />
+      <DomainModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        domainToEdit={domainToEdit}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={deleteMutation.isPending}
+      />
     </main>
   )
 }

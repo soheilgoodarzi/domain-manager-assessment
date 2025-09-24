@@ -37,4 +37,22 @@ export const createDomain = async (
   const response = await apiClient.post<Domain>("/", newDomain)
   return response.data
 }
+
+export type UpdateDomainInput = Partial<CreateDomainInput>
+
+export const updateDomain = async ({
+  id,
+  data,
+}: {
+  id: string
+  data: UpdateDomainInput
+}): Promise<Domain> => {
+  const response = await apiClient.patch<Domain>(`/${id}/`, data)
+  return response.data
+}
+
+export const deleteDomain = async (id: string): Promise<void> => {
+  await apiClient.delete(`/${id}/`)
+}
+
 export default apiClient
