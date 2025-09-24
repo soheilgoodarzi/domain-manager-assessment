@@ -1,5 +1,6 @@
 import { Domain } from "@/types/domain"
 import axios from "axios"
+
 const apiClient = axios.create({
   baseURL: "https://domain-danajo.liara.run/api/Domain/",
   headers: {
@@ -7,30 +8,33 @@ const apiClient = axios.create({
   },
 })
 
+type PaginatedDomainsResponse = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: Domain[]
+}
+
 export const getDomains = async (): Promise<Domain[]> => {
   try {
-    const response = await apiClient.get<Domain[]>("/")
-    return response.data
+    const response = await apiClient.get<PaginatedDomainsResponse>("/")
+    return response.data.results
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Axios error:", error.message)
-      throw new Error(
-        error.response?.data?.message || "An unknown error occurred"
-      )
-    } else {
-      console.error("Unexpected error:", error)
-      throw new Error("An unexpected error occurred")
-    }
+    console.error("Failed to fetch domains:", error)
+    return []
   }
 }
+
 export type CreateDomainInput = {
-  domain: string | undefined
-  status: 1 | 2 | 3 | undefined
-  isActive: boolean | undefined
+  domain: string
+  status: 1 | 2 | 3
+  isActive: boolean
 }
+
 export const createDomain = async (
   newDomain: CreateDomainInput
 ): Promise<Domain> => {
   const response = await apiClient.post<Domain>("/", newDomain)
   return response.data
 }
+export default apiClient

@@ -1,9 +1,9 @@
 export type Domain = {
-  id: string|null
+  id: string
   domain: string
-  isActive: boolean|null
+  isActive: boolean
   status: 1 | 2 | 3
-  createdDate: string|null
+  createdDate: string
 }
 
 export type CreateDomainInput = {

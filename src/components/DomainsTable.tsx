@@ -1,6 +1,5 @@
 "use client"
-import { useQuery } from "@tanstack/react-query"
-import { getDomains } from "@/services/api"
+
 import {
   useReactTable,
   getCoreRowModel,
@@ -16,10 +15,7 @@ const statusMap = {
 }
 
 const columns: ColumnDef<Domain>[] = [
-  {
-    accessorKey: "domain",
-    header: "Domain",
-  },
+  { accessorKey: "domain", header: "Domain" },
   {
     accessorKey: "status",
     header: "Status",
@@ -60,27 +56,16 @@ const columns: ColumnDef<Domain>[] = [
   },
 ]
 
-const DomainsTable = () => {
-  const {
-    data: domains = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["domains"],
-    queryFn: getDomains,
-  })
+interface DomainsTableProps {
+  data: Domain[]
+}
 
+const DomainsTable = ({ data }: DomainsTableProps) => {
   const table = useReactTable({
-    data: domains,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-
-  if (isLoading) return <div className="text-center p-8">Loading...</div>
-  if (isError)
-    return (
-      <div className="text-center p-8 text-red-500">Error loading data.</div>
-    )
 
   return (
     <div className="overflow-x-auto">
@@ -103,18 +88,26 @@ const DomainsTable = () => {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b border-slate-700/50 hover:bg-slate-700/50"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="p-4 text-sm">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+          {table.getRowModel().rows.length > 0 ? (
+            table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-slate-700/50 hover:bg-slate-700/50"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="p-4 text-sm">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className="text-center p-8">
+                No domains found.
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
