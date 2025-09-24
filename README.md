@@ -2,7 +2,7 @@
 
 This is a Single Page Application built for a front-end assessment project. The application allows users to manage a list of domains with full CRUD (Create, Read, Update, Delete) functionality, along with client-side search and filtering.
 
-**Live Demo:** [Your Vercel deployment link goes here]
+**Live Demo:** [https://domain-manager-assessment.vercel.app/]
 
 ---
 
