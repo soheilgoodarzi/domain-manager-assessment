@@ -38,7 +38,6 @@ export default function HomePage() {
     onSuccess: () => {
       toast.success("Domain deleted successfully!")
       queryClient.invalidateQueries({ queryKey: ["domains"] })
-      // ✅ بعد از موفقیت، مودال حذف را ببند
       setIsDeleteModalOpen(false)
       setDomainToDeleteId(null)
     },
