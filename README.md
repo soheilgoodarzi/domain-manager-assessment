@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Domain Manager SPA
 
-## Getting Started
+This is a Single Page Application built for a front-end assessment project. The application allows users to manage a list of domains with full CRUD (Create, Read, Update, Delete) functionality, along with client-side search and filtering.
 
-First, run the development server:
+**Live Demo:** [https://domain-manager-assessment.vercel.app/]
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
+
+## ✨ Features
+
+- **Full CRUD Operations:** Add, view, edit, and delete domains.
+- **Client-Side Search & Filter:** Instantly search by domain name and filter by status or active state.
+- **Form Validation:** Robust form validation using React Hook Form and Zod.
+- **Interactive Modals:** Custom modals for creating, editing, and confirming deletion.
+- **Toast Notifications:** User-friendly feedback for all actions.
+- **Modern & Responsive UI:** Clean and responsive user interface built with Tailwind CSS.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Server State Management:** TanStack Query (React Query)
+- **Form Management:** React Hook Form & Zod for validation
+- **UI Components:** Headless UI for accessible modals
+- **Notifications:** React Hot Toast
+- **API Client:** Axios
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm or yarn
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/soheilgoodarzi/domain-manager-assessment.git](https://github.com/soheilgoodarzi/domain-manager-assessment.git)
+    ```
+
+2.  **Navigate to the project directory:**
+    ```bash
+    cd domain-manager-assessment
+    ```
+
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
